@@ -6,9 +6,10 @@ on:
       - main
 
 env:
-  PROJECT_ID: 'my-project'           # TODO: your Google Cloud project ID
-  REGION: 'us-central1'              # TODO: your region
-  SERVICE: 'my-service'              # TODO: your Cloud Run service name
+  PROJECT_ID: 'my-project'  
+  GAR_NAME: 'gh-demo' # TODO: your Google Cloud project ID
+  REGION: 'us-central1' # TODO: your region
+  SERVICE: 'my-flask-app'              # TODO: your Cloud Run service name
 
 jobs:
   deploy:
@@ -27,11 +28,11 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: 'Docker Auth'
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev"
 
       - name: 'Build and Push Docker Image'
         run: |
-          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
+          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME}}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
 
