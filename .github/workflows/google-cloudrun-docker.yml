@@ -7,9 +7,9 @@ on:
 
 env:
   PROJECT_ID: 'my-project'  
-  GAR_NAME: 'gh-demo' # TODO: your Google Cloud project ID
-  REGION: 'us-central1' # TODO: your region
-  SERVICE: 'my-flask-app'              # TODO: your Cloud Run service name
+  GAR_NAME: 'gh-demo' # Artifact Registry name
+  REGION: 'us-central1' # Deployment region
+  SERVICE: 'my-flask-app' # Cloud Run service name
 
 jobs:
   deploy:
@@ -32,16 +32,18 @@ jobs:
 
       - name: 'Build and Push Docker Image'
         run: |
-          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME}}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
+          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
 
       - name: 'Deploy to Cloud Run'
+        id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
-          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}'
 
-      - name: 'Show Deployed URL'
-        run: echo "URL: ${{ steps.deploy.outputs.url }}"
+      - name: Show Deployed URL
+        run: echo  ${{ steps.deploy.outputs.url }}
+
